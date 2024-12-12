@@ -1,0 +1,44 @@
+package org.example.rkwork;
+
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Optional;
+
+@RestController
+@RequestMapping("/api")
+public class PhotoController {
+
+    private final Path photoDirectory = Paths.get("photos");
+
+    public PhotoController() {
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Resource> searchPhoto(@RequestParam("title") String title) {
+        try {
+            Optional<Path> photo = Files.list(photoDirectory)
+                    .filter(file -> file.getFileName().toString().equalsIgnoreCase(title))
+                    .findFirst();
+
+            if (photo.isPresent()) {
+                Resource resource = new UrlResource(photo.get().toUri());
+                String contentType = Files.probeContentType(photo.get());
+                return ResponseEntity.ok()
+                        .header("Content-Type", contentType != null ? contentType : "application/octet-stream")
+                        .body(resource);
+            } else {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Фото '" + title + "' не найдено.");
+            }
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Ошибка при поиске фото: " + e.getMessage());
+        }
+    }
+}
