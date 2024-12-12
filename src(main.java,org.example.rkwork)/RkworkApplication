@@ -1,0 +1,13 @@
+package org.example.rkwork;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class RkworkApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(RkworkApplication.class, args);
+    }
+
+}
